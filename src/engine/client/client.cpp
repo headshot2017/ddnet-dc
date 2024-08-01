@@ -1100,7 +1100,7 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, unsigned 
 const char *CClient::LoadMapSearch(const char *pMapName, int WantedCrc)
 {
 	const char *pError = 0;
-	char aBuf[512];
+	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "loading map, map=%s wanted crc=%08x", pMapName, WantedCrc);
 	m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aBuf);
 	SetState(IClient::STATE_LOADING);
