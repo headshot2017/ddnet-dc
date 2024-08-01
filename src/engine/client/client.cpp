@@ -3192,7 +3192,6 @@ static CClient *CreateClient()
 {
 	CClient *pClient = static_cast<CClient *>(mem_alloc(sizeof(CClient), 1));
 	mem_zero(pClient, sizeof(CClient));
-	dbglog(DBG_INFO, "return new(pClient) CClient;\n");
 	return new(pClient) CClient;
 }
 
@@ -3237,9 +3236,7 @@ int main(int argc, const char **argv) // ignore_convention
 	}
 	*/
 
-	dbglog(DBG_INFO, "createclient\n");
 	CClient *pClient = CreateClient();
-	dbglog(DBG_INFO, "createclient done\n");
 	IKernel *pKernel = IKernel::Create();
 	pKernel->RegisterInterface(pClient);
 	pClient->RegisterInterfaces();
