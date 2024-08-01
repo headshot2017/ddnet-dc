@@ -141,6 +141,7 @@ CGraphics_PVR::CGraphics_PVR()
 
 void CGraphics_PVR::ClipEnable(int x, int y, int w, int h)
 {
+	/*
 	if(x < 0)
 		w += x;
 	if(y < 0)
@@ -151,13 +152,19 @@ void CGraphics_PVR::ClipEnable(int x, int y, int w, int h)
 	w = clamp(w, 0, ScreenWidth()-x);
 	h = clamp(h, 0, ScreenHeight()-y);
 
-	glScissor(x, ScreenHeight()-(y+h), w, h);
+	x = ((x/32))*32;
+	y = ((y/32))*32;
+	w = ((w/32)+1)*32;
+	h = ((h/32)+1)*32;
+
 	glEnable(GL_SCISSOR_TEST);
+	glScissor(x, ScreenHeight()-(y+h), w, h);
+	*/
 }
 
 void CGraphics_PVR::ClipDisable()
 {
-	glDisable(GL_SCISSOR_TEST);
+	//glDisable(GL_SCISSOR_TEST);
 }
 
 void CGraphics_PVR::BlendNone()
