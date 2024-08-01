@@ -10,6 +10,8 @@
 
 #include "input.h"
 
+#include <kos.h>
+
 //print >>f, "int inp_key_code(const char *key_name) { int i; if (!strcmp(key_name, \"-?-\")) return -1; else for (i = 0; i < 512; i++) if (!strcmp(key_strings[i], key_name)) return i; return -1; }"
 
 // this header is protected so you don't include it from anywere
@@ -63,14 +65,36 @@ CInput::CInput()
 void CInput::Init()
 {
 	m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
+
+	cont_btn_callback(0, CONT_START | CONT_A | CONT_B | CONT_X | CONT_Y, (cont_btn_callback_t)arch_exit);
 }
 
 void CInput::MouseRelative(float *x, float *y)
 {
 	int nx = 0, ny = 0;
+	float Sens = ((g_Config.m_ClDyncam && g_Config.m_ClDyncamMousesens) ? g_Config.m_ClDyncamMousesens : g_Config.m_InpMousesens) / 100.0f;
 
-	*x = nx;
-	*y = ny;
+	maple_device_t *mouse = maple_enum_type(0, MAPLE_FUNC_MOUSE);
+	if (!mouse)
+	{
+		*x = 0;
+		*y = 0;
+		return;
+	}
+
+	mouse_state_t *mstate = (mouse_state_t *)maple_dev_status(mouse);
+	if (!mstate)
+	{
+		*x = 0;
+		*y = 0;
+		return;
+	}
+
+	nx = mstate->dx;
+	ny = mstate->dy;
+
+	*x = nx*Sens;
+	*y = ny*Sens;
 }
 
 void CInput::MouseModeAbsolute()
@@ -154,6 +178,74 @@ int CInput::Update()
 		}
 	}
 	*/
+
+	maple_device_t *cont, *mouse, *kbd;
+	cont_state_t *cstate;
+	mouse_state_t *mstate;
+
+	mouse = maple_enum_type(0, MAPLE_FUNC_MOUSE);
+	if (mouse)
+	{
+		mstate = (mouse_state_t *)maple_dev_status(mouse);
+		if (mstate)
+		{
+			static int oldBtns = 0;
+
+			int down = mstate->buttons &~ oldBtns;
+			int up = oldBtns &~ mstate->buttons;
+			int held = mstate->buttons;
+
+			if (held & MOUSE_LEFTBUTTON) m_aInputState[m_InputCurrent][KEY_MOUSE_1] = 1;
+			if (held & MOUSE_RIGHTBUTTON) m_aInputState[m_InputCurrent][KEY_MOUSE_2] = 1;
+			if (held & MOUSE_SIDEBUTTON) m_aInputState[m_InputCurrent][KEY_MOUSE_3] = 1;
+
+			int Key = -1;
+			if (down)
+			{
+				if (down & MOUSE_LEFTBUTTON) Key = KEY_MOUSE_1;
+				if (down & MOUSE_RIGHTBUTTON) Key = KEY_MOUSE_2;
+				if (down & MOUSE_SIDEBUTTON) Key = KEY_MOUSE_3;
+
+				if (Key != -1)
+				{
+					m_aInputCount[m_InputCurrent][Key].m_Presses++;
+					m_aInputState[m_InputCurrent][Key] = 1;
+					AddEvent(0, Key, IInput::FLAG_PRESS);
+				}
+			}
+
+			Key = -1;
+			if (up)
+			{
+				if (up & MOUSE_LEFTBUTTON)
+				{
+					Key = KEY_MOUSE_1;
+					m_ReleaseDelta = time_get() - m_LastRelease;
+					m_LastRelease = time_get();
+				}
+				if (up & MOUSE_RIGHTBUTTON) Key = KEY_MOUSE_2;
+				if (up & MOUSE_SIDEBUTTON) Key = KEY_MOUSE_3;
+
+				if (Key != -1)
+				{
+					m_aInputCount[m_InputCurrent][Key].m_Presses++;
+					AddEvent(0, Key, IInput::FLAG_RELEASE);
+				}
+			}
+
+			Key = -1;
+			if (mstate->dz > 0) Key = KEY_MOUSE_WHEEL_DOWN;
+			if (mstate->dz < 0) Key = KEY_MOUSE_WHEEL_UP;
+			if (Key != -1)
+			{
+				m_aInputCount[m_InputCurrent][Key].m_Presses++;
+				m_aInputState[m_InputCurrent][Key] = 1;
+				AddEvent(0, Key, IInput::FLAG_PRESS);
+			}
+
+			oldBtns = mstate->buttons;
+		}
+	}
 
 	/*
 	{
