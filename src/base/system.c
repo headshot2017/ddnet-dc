@@ -424,19 +424,6 @@ int io_flush(IOHANDLE io)
 	return 0;
 }
 
-struct ThreadParams
-{
-	void (*threadfunc)(void *);
-	void *u;
-} p;
-
-static void* RunThread(void* param)
-{
-	struct ThreadParams* pp = (struct ThreadParams*)param;
-	pp->threadfunc(pp->u);
-	return NULL;
-}
-
 void *thread_init(void (*threadfunc)(void *), void *u)
 {
 #if defined(CONF_FAMILY_KOS)
@@ -444,10 +431,7 @@ void *thread_init(void (*threadfunc)(void *), void *u)
 	attrs.stack_size     = 256*1024;
 	attrs.label          = "DDNet Thread";
 
-	p.threadfunc = threadfunc;
-	p.u = u;
-
-	return (void*)thd_create_ex(&attrs, RunThread, &p);
+	return (void*)thd_create_ex(&attrs, (void *(*)(void*))threadfunc, u);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_t id;
 	pthread_create(&id, NULL, (void *(*)(void*))threadfunc, u);
