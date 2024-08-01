@@ -1,0 +1,9 @@
+build/
+src/game/generated/
+__pycache__/
+*.o
+*.elf
+*.bin
+*.cdi
+*.pyc
+*.exe
