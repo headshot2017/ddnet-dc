@@ -344,13 +344,8 @@ bool CControls::OnMouseMove(float x, float y)
 		(m_pClient->m_Snap.m_SpecInfo.m_Active && m_pClient->m_pChat->IsActive()))
 		return false;
 
-	if( m_OldMouseX != x || m_OldMouseY != y )
-	{
-		m_OldMouseX = x;
-		m_OldMouseY = y;
-		m_MousePos[g_Config.m_ClDummy] = vec2((x - g_Config.m_GfxScreenWidth/2), (y - g_Config.m_GfxScreenHeight/2));
-		ClampMousePos();
-	}
+	m_MousePos[g_Config.m_ClDummy] += vec2(x, y); // TODO: ugly
+	ClampMousePos();
 
 	return true;
 }
