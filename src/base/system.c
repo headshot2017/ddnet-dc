@@ -424,10 +424,30 @@ int io_flush(IOHANDLE io)
 	return 0;
 }
 
+struct ThreadParams
+{
+	void (*threadfunc)(void *);
+	void *u;
+} p;
+
+static void* RunThread(void* param)
+{
+	struct ThreadParams* pp = (struct ThreadParams*)param;
+	pp->threadfunc(pp->u);
+	return NULL;
+}
+
 void *thread_init(void (*threadfunc)(void *), void *u)
 {
 #if defined(CONF_FAMILY_KOS)
-	return 0;
+	kthread_attr_t attrs = { 0 };
+	attrs.stack_size     = 256*1024;
+	attrs.label          = "DDNet Thread";
+
+	p.threadfunc = threadfunc;
+	p.u = u;
+
+	return (void*)thd_create_ex(&attrs, RunThread, &p);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_t id;
 	pthread_create(&id, NULL, (void *(*)(void*))threadfunc, u);
@@ -442,7 +462,7 @@ void *thread_init(void (*threadfunc)(void *), void *u)
 void thread_wait(void *thread)
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	thd_join((kthread_t*)thread, NULL);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_join((pthread_t)thread, NULL);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -454,7 +474,10 @@ void thread_wait(void *thread)
 
 void thread_destroy(void *thread)
 {
-#if defined(CONF_FAMILY_UNIX)
+#if defined(CONF_FAMILY_KOS)
+	void *r = 0;
+	thd_join((kthread_t*)thread, &r);
+#elif defined(CONF_FAMILY_UNIX)
 	void *r = 0;
 	pthread_join((pthread_t)thread, &r);
 #else
@@ -465,7 +488,7 @@ void thread_destroy(void *thread)
 void thread_yield()
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	thd_pass();
 #elif defined(CONF_FAMILY_UNIX)
 	sched_yield();
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -478,7 +501,7 @@ void thread_yield()
 void thread_sleep(int milliseconds)
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	thd_sleep(milliseconds);
 #elif defined(CONF_FAMILY_UNIX)
 	usleep(milliseconds*1000);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -491,7 +514,7 @@ void thread_sleep(int milliseconds)
 void thread_detach(void *thread)
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	thd_detach((kthread_t*)thread);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_detach((pthread_t)(thread));
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -519,7 +542,7 @@ LOCK lock_create()
 	LOCKINTERNAL *lock = (LOCKINTERNAL*)mem_alloc(sizeof(LOCKINTERNAL), 4);
 
 #if defined(CONF_FAMILY_KOS)
-	
+	mutex_init(lock, 0);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_mutex_init(lock, 0x0);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -533,7 +556,7 @@ LOCK lock_create()
 void lock_destroy(LOCK lock)
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	mutex_destroy((LOCKINTERNAL*)lock);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_mutex_destroy((LOCKINTERNAL *)lock);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -547,7 +570,7 @@ void lock_destroy(LOCK lock)
 int lock_trylock(LOCK lock)
 {
 #if defined(CONF_FAMILY_KOS)
-	return 0;
+	return mutex_trylock((LOCKINTERNAL*)lock);
 #elif defined(CONF_FAMILY_UNIX)
 	return pthread_mutex_trylock((LOCKINTERNAL *)lock);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -560,7 +583,7 @@ int lock_trylock(LOCK lock)
 void lock_wait(LOCK lock)
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	mutex_lock((LOCKINTERNAL*)lock);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_mutex_lock((LOCKINTERNAL *)lock);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -573,7 +596,7 @@ void lock_wait(LOCK lock)
 void lock_unlock(LOCK lock)
 {
 #if defined(CONF_FAMILY_KOS)
-	
+	mutex_unlock((LOCKINTERNAL*)lock);
 #elif defined(CONF_FAMILY_UNIX)
 	pthread_mutex_unlock((LOCKINTERNAL *)lock);
 #elif defined(CONF_FAMILY_WINDOWS)
