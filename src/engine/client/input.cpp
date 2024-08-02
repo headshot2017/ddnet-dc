@@ -45,7 +45,7 @@ void CInput::AddEvent(int Unicode, int Key, int Flags)
 	}
 }
 
-static int MapKey(int k, bool capslock)
+static int MapKey(int k)
 {
 	if (k >= KBD_KEY_A  && k <= KBD_KEY_Z)   return KEY_a  + (k - KBD_KEY_A);
 	if (k >= KBD_KEY_0  && k <= KBD_KEY_9)   return KEY_0  + (k - KBD_KEY_0);
@@ -103,7 +103,6 @@ void CInput::HandleKeyboardInput(void* pKbd, void* pKbdState)
 
 	maple_device_t *kbd = (maple_device_t *)pKbd;
 	kbd_state_t *kstate = (kbd_state_t *)pKbdState;
-	kbd_cond_t *kcond = &kstate->cond;
 
 	int Unicode = 0, ret;
 	while ( (ret = kbd_queue_pop(kbd, 1)) != -1 )
