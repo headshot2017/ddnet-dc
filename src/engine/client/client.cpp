@@ -2508,36 +2508,27 @@ void CClient::InitInterfaces()
 
 void CClient::Run()
 {
-	dbg_msg("dc", "run()");
 	m_LocalStartTime = time_get();
 	m_SnapshotParts = 0;
 
-	dbg_msg("dc", "srand");
 	srand(time(NULL));
 
 	// init graphics
 	{
-		dbg_msg("dc", "create graphics");
 		m_pGraphics = CreateEngineGraphics();
-		dbg_msg("dc", "created graphics");
 
 		bool RegisterFail = false;
 		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(static_cast<IEngineGraphics*>(m_pGraphics)); // register graphics as both
 		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(static_cast<IGraphics*>(m_pGraphics));
 
-		dbg_msg("dc", "init graphics");
 		if(RegisterFail || m_pGraphics->Init() != 0)
 		{
-			dbg_msg("client", "couldn't init graphics");
 			return;
 		}
-		dbg_msg("dc", "inited graphics");
 	}
 
 	// init sound, allowed to fail
-	dbg_msg("dc", "init sound");
 	m_SoundInitFailed = Sound()->Init() != 0;
-	dbg_msg("dc", "inited sound");
 
 	// open socket
 	{
