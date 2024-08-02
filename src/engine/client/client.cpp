@@ -3198,7 +3198,7 @@ static CClient *CreateClient()
 		Upstream latency
 */
 
-KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
+KOS_INIT_FLAGS(INIT_CONTROLLER | INIT_KEYBOARD | INIT_MOUSE | INIT_CDROM | INIT_NET);
 
 #if defined(CONF_PLATFORM_MACOSX) || defined(__ANDROID__)
 extern "C" int SDL_main(int argc, char **argv_) // ignore_convention
