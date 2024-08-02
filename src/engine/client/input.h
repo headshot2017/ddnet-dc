@@ -16,6 +16,9 @@ class CInput : public IEngineInput
 
 	void AddEvent(int Unicode, int Key, int Flags);
 
+	void HandleKeyboardInput(void* pKbd, void* pKbdState);
+	void HandleMouseInput(void* pMstate);
+
 	IEngineGraphics *Graphics() { return m_pGraphics; }
 
 public:
