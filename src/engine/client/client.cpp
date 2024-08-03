@@ -257,11 +257,9 @@ void CSmoothTime::Update(CGraph *pGraph, int64 Target, int TimeLeft, int AdjustD
 
 CClient::CClient() : m_DemoPlayer(&m_SnapshotDelta)
 {
-	/*
 	m_DemoRecorder[0] = CDemoRecorder(&m_SnapshotDelta);
 	m_DemoRecorder[1] = CDemoRecorder(&m_SnapshotDelta);
 	m_DemoRecorder[2] = CDemoRecorder(&m_SnapshotDelta);
-	*/
 
 	m_pEditor = 0;
 	m_pInput = 0;
@@ -380,14 +378,12 @@ int CClient::SendMsgEx(CMsgPacker *pMsg, int Flags, bool System)
 	if(Flags&MSGFLAG_FLUSH)
 		Packet.m_Flags |= NETSENDFLAG_FLUSH;
 
-	/*
 	if(Flags&MSGFLAG_RECORD)
 	{
 		for(int i = 0; i < RECORDER_MAX; i++)
 			if(m_DemoRecorder[i].IsRecording())
 				m_DemoRecorder[i].RecordMessage(Packet.m_pData, Packet.m_DataSize);
 	}
-	*/
 
 	if(!(Flags&MSGFLAG_NOSEND))
 	{
@@ -700,11 +696,9 @@ void CClient::Connect(const char *pAddress)
 	m_NetClient[0].Connect(&m_ServerAddress);
 	SetState(IClient::STATE_CONNECTING);
 
-	/*
 	for(int i = 0; i < RECORDER_MAX; i++)
 		if(m_DemoRecorder[i].IsRecording())
 			DemoRecorder_Stop(i);
-	*/
 
 	m_InputtimeMarginGraph.Init(-150.0f, 150.0f);
 	m_GametimeMarginGraph.Init(-150.0f, 150.0f);
@@ -718,10 +712,8 @@ void CClient::DisconnectWithReason(const char *pReason)
 
 	// stop demo playback and recorder
 	m_DemoPlayer.Stop();
-	/*
 	for(int i = 0; i < RECORDER_MAX; i++)
 		DemoRecorder_Stop(i);
-	*/
 
 	//
 	m_RconAuthed[0] = 0;
@@ -1079,10 +1071,8 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, unsigned 
 	}
 
 	// stop demo recording if we loaded a new map
-	/*
 	for(int i = 0; i < RECORDER_MAX; i++)
 		DemoRecorder_Stop(i);
-	*/
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "loaded map '%s'", pFilename);
@@ -1817,7 +1807,6 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 						SnapshotRemoveExtraInfo(aExtraInfoRemoved);
 
 					// add snapshot to demo
-					/*
 					for(int i = 0; i < RECORDER_MAX; i++)
 					{
 						if(m_DemoRecorder[i].IsRecording())
@@ -1826,7 +1815,6 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 							m_DemoRecorder[i].RecordSnapshot(GameTick, aExtraInfoRemoved, SnapSize);
 						}
 					}
-					*/
 
 					// apply snapshot, cycle pointers
 					m_ReceivedSnapshots[g_Config.m_ClDummy]++;
@@ -1844,7 +1832,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 						m_aSnapshots[g_Config.m_ClDummy][SNAP_CURRENT] = m_SnapshotStorage[g_Config.m_ClDummy].m_pLast;
 						m_LocalStartTime = time_get();
 						SetState(IClient::STATE_ONLINE);
-						//DemoRecorder_HandleAutoStart();
+						DemoRecorder_HandleAutoStart();
 					}
 
 					// adjust game time
@@ -1883,11 +1871,9 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 		if((pPacket->m_Flags&NET_CHUNKFLAG_VITAL) != 0 || Msg == NETMSGTYPE_SV_EXTRAPROJECTILE)
 		{
 			// game message
-			/*
 			for(int i = 0; i < RECORDER_MAX; i++)
 				if(m_DemoRecorder[i].IsRecording())
 					m_DemoRecorder[i].RecordMessage(pPacket->m_pData, pPacket->m_DataSize);
-			*/
 
 			GameClient()->OnMessage(Msg, &Unpacker);
 		}
@@ -2471,7 +2457,7 @@ void CClient::CheckVersionUpdate()
 
 void CClient::RegisterInterfaces()
 {
-	//Kernel()->RegisterInterface(static_cast<IDemoRecorder*>(&m_DemoRecorder[RECORDER_MANUAL]));
+	Kernel()->RegisterInterface(static_cast<IDemoRecorder*>(&m_DemoRecorder[RECORDER_MANUAL]));
 	Kernel()->RegisterInterface(static_cast<IDemoPlayer*>(&m_DemoPlayer));
 	Kernel()->RegisterInterface(static_cast<IServerBrowser*>(&m_ServerBrowser));
 	Kernel()->RegisterInterface(static_cast<IFriends*>(&m_Friends));
@@ -2483,7 +2469,7 @@ void CClient::InitInterfaces()
 	// fetch interfaces
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
 	m_pEditor = Kernel()->RequestInterface<IEditor>();
-	//m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
+	m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
 	m_pSound = Kernel()->RequestInterface<IEngineSound>();
 	m_pGameClient = Kernel()->RequestInterface<IGameClient>();
 	m_pInput = Kernel()->RequestInterface<IEngineInput>();
@@ -3036,7 +3022,6 @@ void CClient::Con_DemoPlay(IConsole::IResult *pResult, void *pUserData)
 
 void CClient::DemoRecorder_Start(const char *pFilename, bool WithTimestamp, int Recorder)
 {
-	/*
 	if(State() != IClient::STATE_ONLINE)
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "demorec/record", "client is not online");
 	else
@@ -3052,12 +3037,10 @@ void CClient::DemoRecorder_Start(const char *pFilename, bool WithTimestamp, int 
 			str_format(aFilename, sizeof(aFilename), "demos/%s.demo", pFilename);
 		m_DemoRecorder[Recorder].Start(Storage(), m_pConsole, aFilename, GameClient()->NetVersion(), m_aCurrentMap, m_CurrentMapCrc, "client");
 	}
-	*/
 }
 
 void CClient::DemoRecorder_HandleAutoStart()
 {
-	/*
 	if(g_Config.m_ClAutoDemoRecord)
 	{
 		DemoRecorder_Stop(RECORDER_AUTO);
@@ -3071,52 +3054,45 @@ void CClient::DemoRecorder_HandleAutoStart()
 			AutoDemos.Init(Storage(), "demos/auto", "", ".demo", g_Config.m_ClAutoDemoMax);
 		}
 	}
-	*/
 }
 
 void CClient::DemoRecorder_Stop(int Recorder)
 {
-	//m_DemoRecorder[Recorder].Stop();
+	m_DemoRecorder[Recorder].Stop();
 }
 
 void CClient::DemoRecorder_AddDemoMarker(int Recorder)
 {
-	//m_DemoRecorder[Recorder].AddDemoMarker();
+	m_DemoRecorder[Recorder].AddDemoMarker();
 }
 
 class IDemoRecorder *CClient::DemoRecorder(int Recorder)
 {
-	//return &m_DemoRecorder[Recorder];
+	return &m_DemoRecorder[Recorder];
 	return 0;
 }
 
 void CClient::Con_Record(IConsole::IResult *pResult, void *pUserData)
 {
-	/*
 	CClient *pSelf = (CClient *)pUserData;
 	if(pResult->NumArguments())
 		pSelf->DemoRecorder_Start(pResult->GetString(0), false, RECORDER_MANUAL);
 	else
 		pSelf->DemoRecorder_Start(pSelf->m_aCurrentMap, true, RECORDER_MANUAL);
-	*/
 }
 
 void CClient::Con_StopRecord(IConsole::IResult *pResult, void *pUserData)
 {
-	/*
 	CClient *pSelf = (CClient *)pUserData;
 	pSelf->DemoRecorder_Stop(RECORDER_MANUAL);
-	*/
 }
 
 void CClient::Con_AddDemoMarker(IConsole::IResult *pResult, void *pUserData)
 {
-	/*
 	CClient *pSelf = (CClient *)pUserData;
 	pSelf->DemoRecorder_AddDemoMarker(RECORDER_MANUAL);
 	pSelf->DemoRecorder_AddDemoMarker(RECORDER_RACE);
 	pSelf->DemoRecorder_AddDemoMarker(RECORDER_AUTO);
-	*/
 }
 
 void CClient::ServerBrowserUpdate()
@@ -3198,7 +3174,7 @@ static CClient *CreateClient()
 		Upstream latency
 */
 
-KOS_INIT_FLAGS(INIT_CONTROLLER | INIT_KEYBOARD | INIT_MOUSE | INIT_CDROM | INIT_NET);
+KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 
 #if defined(CONF_PLATFORM_MACOSX) || defined(__ANDROID__)
 extern "C" int SDL_main(int argc, char **argv_) // ignore_convention
@@ -3364,7 +3340,6 @@ int CClient::GetCurrentMapCrc()
 
 const char* CClient::RaceRecordStart(const char *pFilename)
 {
-	/*
 	char aFilename[128];
 	str_format(aFilename, sizeof(aFilename), "demos/%s_%s.demo", m_aCurrentMap, pFilename);
 
@@ -3372,22 +3347,19 @@ const char* CClient::RaceRecordStart(const char *pFilename)
 		dbg_msg("demorec/record", "client is not online");
 	else
 		m_DemoRecorder[RECORDER_RACE].Start(Storage(),  m_pConsole, aFilename, GameClient()->NetVersion(), m_aCurrentMap, m_CurrentMapCrc, "client");
-	*/
 
 	return m_aCurrentMap;
 }
 
 void CClient::RaceRecordStop()
 {
-	/*
 	if(m_DemoRecorder[RECORDER_RACE].IsRecording())
 		m_DemoRecorder[RECORDER_RACE].Stop();
-	*/
 }
 
 bool CClient::RaceRecordIsRecording()
 {
-	//return m_DemoRecorder[RECORDER_RACE].IsRecording();
+	return m_DemoRecorder[RECORDER_RACE].IsRecording();
 	return false;
 }
 
