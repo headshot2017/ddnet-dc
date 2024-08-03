@@ -35,21 +35,9 @@ void CGraphics_PVR::Flush()
 
 		for (int i=0; i<m_NumVertices; i++)
 		{
-			float r = m_aVertices[i].m_Color.r;
-			float g = m_aVertices[i].m_Color.g;
-			float b = m_aVertices[i].m_Color.b;
-			float a = m_aVertices[i].m_Color.a;
-
-			float x = m_aVertices[i].m_Pos.x;
-			float y = m_aVertices[i].m_Pos.y;
-			float z = m_aVertices[i].m_Pos.z;
-
-			float u = m_aVertices[i].m_Tex.u;
-			float v = m_aVertices[i].m_Tex.v;
-
-			glColor4f(r, g, b, a);
-			glTexCoord2f(u, v);
-			glVertex3f(x, y, z);
+			glColor4f(m_aVertices[i].m_Color.r, m_aVertices[i].m_Color.g, m_aVertices[i].m_Color.b, m_aVertices[i].m_Color.a);
+			glTexCoord2f(m_aVertices[i].m_Tex.u, m_aVertices[i].m_Tex.v);
+			glVertex3f(m_aVertices[i].m_Pos.x, m_aVertices[i].m_Pos.y, m_aVertices[i].m_Pos.z);
 		}
 
 		glEnd();
