@@ -3069,7 +3069,6 @@ void CClient::DemoRecorder_AddDemoMarker(int Recorder)
 class IDemoRecorder *CClient::DemoRecorder(int Recorder)
 {
 	return &m_DemoRecorder[Recorder];
-	return 0;
 }
 
 void CClient::Con_Record(IConsole::IResult *pResult, void *pUserData)
@@ -3360,7 +3359,6 @@ void CClient::RaceRecordStop()
 bool CClient::RaceRecordIsRecording()
 {
 	return m_DemoRecorder[RECORDER_RACE].IsRecording();
-	return false;
 }
 
 void CClient::RequestDDNetSrvList()
