@@ -6,6 +6,10 @@ To compile, install [DreamSDK](https://www.dreamsdk.org/) if on Windows, or [Kal
 
 This port uses these libraries from kos-ports: libGL, libopusfile, libopus, libogg, zlib
 
+Known issues:
+* Game crashes when connecting to a server due to KallistiOS' default 64 KB kernel stack size
+* Map tiles do not render correctly
+
 Original README follows
 
 [![DDraceNetwork](http://ddnet.tw/ddnet-small.png)](http://ddnet.tw) [![Build Status](https://circleci.com/gh/ddnet/ddnet/tree/master.png)](https://circleci.com/gh/ddnet/ddnet)
