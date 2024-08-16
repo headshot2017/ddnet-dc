@@ -1,0 +1,50 @@
+name: ISO
+
+on: [push, pull_request]
+
+env:
+  BASE_PATH: /opt/toolchains/dc
+  KOS_PATH: /opt/toolchains/dc/kos
+  KOS_BASE: /opt/toolchains/dc/kos
+  KOS_ARCH: dreamcast
+
+jobs:
+  build:
+    name: KallistiOS Build
+    runs-on: ubuntu-latest
+    container: 
+      image: ghcr.io/kos-builds/kos-ports-dc:sha-656a397-14.1.0
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup
+      run: |
+        apt-get update
+        apt-get -y install python-is-python3 libisofs-dev meson ninja-build
+
+    - name: Make
+      shell: bash
+      run: |
+        chmod +x /opt/toolchains/dc/kos/*.sh
+        git config --global --add safe.directory /__w/ddnet-dc/ddnet-dc
+        /opt/toolchains/dc/kos/environ_base.sh
+        make src/game/generated
+        make
+
+    - name: CDI image
+      shell: bash
+      run: |
+        git clone https://gitlab.com/simulant/mkdcdisc.git
+        cd mkdcdisc
+        meson setup builddir
+        meson compile -C builddir
+        cd ..
+        ./mkdcdisc/builddir/mkdcdisc -e ddnet-dc.elf -d cd_root -o ddnet-dc.cdi
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DC Image
+        path: ddnet-dc.cdi
