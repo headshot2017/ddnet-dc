@@ -23,7 +23,6 @@
 
 	/* unix net includes */
 	#include <sys/socket.h>
-	#include <sys/ioctl.h>
 	#include <errno.h>
 	#include <netdb.h>
 	#include <netinet/in.h>
