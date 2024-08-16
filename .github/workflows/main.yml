@@ -46,5 +46,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DC Image
+        name: CDI Image
         path: ddnet-dc.cdi
