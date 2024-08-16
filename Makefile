@@ -62,11 +62,15 @@ dist: $(TARGET)
 	$(KOS_STRIP) $(TARGET)
 
 cdi: $(TARGET) cd_root
-	elf2bin $(TARGET)
-	scramble $(basename $(TARGET)).bin cd_root/1ST_READ.BIN
-	#makeip -l logo.png -g "DDRACENETWORK" -f IP.BIN
-	makeip -g "DDRACENETWORK" -f IP.BIN
-	makedisc $(basename $(TARGET)).cdi cd_root IP.BIN
+	mkdcdisc -e $(TARGET) -d cd_root -o $(TARGET).cdi
 
 cd_root:
 	mkdir cd_root
+
+src/game/generated:
+	@[ -d $@ ] || mkdir -p $@
+	python datasrc/compile.py network_source > $@/protocol.cpp
+	python datasrc/compile.py network_header > $@/protocol.h
+	python datasrc/compile.py client_content_source > $@/client_data.cpp
+	python datasrc/compile.py client_content_header > $@/client_data.h
+	python scripts/cmd5.py src/engine/shared/protocol.h $@/protocol.h src/game/tuning.h src/game/gamecore.cpp $@/protocol.h > $@/nethash.cpp
