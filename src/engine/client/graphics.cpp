@@ -17,9 +17,9 @@
 
 #include "graphics.h"
 
-#include "GL/gl.h"
-#include "GL/glu.h"
-#include "GL/glkos.h"
+#include <KGL/gl.h>
+#include <KGL/glu.h>
+#include <KGL/glut.h>
 
 #undef GL_MAX_TEXTURE_SIZE
 #define GL_MAX_TEXTURE_SIZE 256
@@ -787,7 +787,7 @@ void CGraphics_PVR::TakeCustomScreenshot(const char *pFilename)
 
 void CGraphics_PVR::Swap()
 {
-	glKosSwapBuffers();
+	glutSwapBuffers();
 }
 
 
