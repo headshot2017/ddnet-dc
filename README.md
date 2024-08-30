@@ -4,7 +4,7 @@ Port of DDNet 9 to the Sega Dreamcast.
 
 To compile, install [DreamSDK](https://www.dreamsdk.org/) if on Windows, or [KallistiOS](http://gamedev.allusion.net/softprj/kos/setup-linux.php) on Linux.
 
-This port uses these libraries from kos-ports: libGL, libopusfile, libopus, libogg, zlib
+This port uses these libraries from kos-ports: libKGL, libopusfile, libopus, libogg, zlib
 
 Known issues:
 * Game crashes when connecting to a server due to KallistiOS' default 64 KB kernel stack size
