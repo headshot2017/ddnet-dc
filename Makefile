@@ -62,7 +62,11 @@ dist: $(TARGET)
 	$(KOS_STRIP) $(TARGET)
 
 cdi: $(TARGET) cd_root
-	mkdcdisc -e $(TARGET) -d cd_root -o $(TARGET).cdi
+	elf2bin $(TARGET)
+	scramble $(basename $(TARGET)).bin cd_root/1ST_READ.BIN
+	#makeip -l logo.png -g "DDRACENETWORK" -f IP.BIN
+	makeip -g "DDRACENETWORK" -f IP.BIN
+	makedisc $(basename $(TARGET)).cdi cd_root IP.BIN
 
 cd_root:
 	mkdir cd_root
