@@ -26,6 +26,7 @@ C_FILES      := $(foreach dir,$(SOURCE_DIRS),$(wildcard $(dir)/*.c))
 OBJS         := $(C_FILES:%.c=%.o) $(CPP_FILES:%.cpp=%.o)
 
 CFLAGS     := -Isrc -I$(KOS_PORTS)/include/zlib -I$(KOS_PORTS)/include/opus -I$(KOS_PORTS)/include/opusfile
+CXXFLAGS   := $(CFLAGS)
 LIBS       := -lKGL -lopusfile -lopus -logg -lz
 #CXXFLAGS     := -IlibADXplay/LibADX
 #LIBS         := -lADX
