@@ -7,8 +7,14 @@ To compile, install [DreamSDK](https://www.dreamsdk.org/) if on Windows, or [Kal
 This port uses these libraries from kos-ports: libKGL, libopusfile, libopus, libogg, zlib
 
 Known issues:
-* Game crashes when connecting to a server due to KallistiOS' default 64 KB kernel stack size
 * Map tiles do not render correctly
+* Game crashes when connecting to a server due to KallistiOS' default 64 KB kernel stack size
+  * This is fixed by compiling latest KOS with custom kernel stack size of 512 KB:
+```
+cd /opt/toolchains/dc/kos
+make clean
+make CFLAGS=-DTHD_KERNEL_STACK_SIZE=524288 all
+```
 
 Original README follows
 
